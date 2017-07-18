@@ -1,22 +1,7 @@
 const express = require('express');
-const multer = require('multer');
+const uploadConfig = require('./uploadConfig');
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, './public'),
-    filename: (req, file, cb) => cb(null, `${Date.now()}${file.originalname}`)
-});
-
-const limits = { fileSize: 500 * 1024 };
-
-const fileFilter = (req, file, cb) => {
-    const { mimetype } = file;
-    const condition = mimetype === 'image/png' || mimetype === 'image/jpeg';
-    if (condition) return cb(null, true);
-    cb(new Error('File must be an image'));
-};
-
-const upload = multer({ storage, limits, fileFilter }).single('avatar');
-
+const upload = uploadConfig.single('avatar');
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', './views');
