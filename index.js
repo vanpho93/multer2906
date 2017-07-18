@@ -6,8 +6,16 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => cb(null, `${Date.now()}${file.originalname}`)
 });
 
-const limits = { fileSize: 50 * 1024 };
-const upload = multer({ storage, limits }).single('avatar');
+const limits = { fileSize: 500 * 1024 };
+
+const fileFilter = (req, file, cb) => {
+    const { mimetype } = file;
+    const condition = mimetype === 'image/png' || mimetype === 'image/jpeg';
+    if (condition) return cb(null, true);
+    cb(new Error('File must be an image'));
+};
+
+const upload = multer({ storage, limits, fileFilter }).single('avatar');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -17,7 +25,8 @@ app.use(express.static('public'));
 app.get('/', (req, res) => res.render('home'));
 
 app.post('/upload', upload, (req, res) => {
-    const { originalname } = req.file;
+    const { originalname, mimetype } = req.file;
+    console.log(mimetype);
     const { username } = req.body;
     res.send(`Da nhan duoc file ${originalname} cua ${username}`);
 });
